@@ -1,12 +1,21 @@
 const list = document.createElement('ul');
+let isChanged = false;
 
 function getToDoList() {
     const toDoList = [];
-    let toDo;
-    while (toDo = getTask()) {
-        toDoList.push(toDo);
+    const items = JSON.parse(window.localStorage.getItem('myTasks'));
+    if (items.length === 0) {
+        let toDo;
+        while (toDo = getTask()) {
+            toDoList.push(toDo);
+        }
+        if (toDoList.length > 0) {
+            isChanged = true;
+            window.localStorage.setItem('myTasks', JSON.stringify(toDoList));
+        }
+        return toDoList;
     }
-    return toDoList;
+    return items;
 }
 
 function createList(toDoList) {
@@ -28,6 +37,7 @@ function addCloseX(liElement) {
     span.className = "close";
     span.appendChild(txt);
     span.onclick = function () {
+        isChanged = true;
         this.parentElement.remove();
     }
     liElement.appendChild(span);
@@ -40,6 +50,7 @@ function getTask() {
 function addNewTask() {
     const task = getTask();
     if (task !== null) {
+        isChanged = true;
         const liElement = document.createElement('li');
         liElement.textContent = task;
         addCloseX(liElement);
@@ -55,9 +66,21 @@ function createAddButton() {
     document.body.append(htmlButtonElement);
 }
 
+function refreshTasks() {
+    const allTasks = document.querySelectorAll("li");
+    const tasks = [];
+    allTasks.forEach(t=> tasks.push(t.textContent.substring(0, t.textContent.length - 1)));
+    window.localStorage.setItem('myTasks', JSON.stringify(tasks));
+}
+
 function init() {
     createList(getToDoList());
     createAddButton();
+    window.onbeforeunload = () => {
+        if (isChanged){
+            refreshTasks();
+        }
+    }
 }
 
 init();
