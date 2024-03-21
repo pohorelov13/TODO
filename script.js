@@ -4,7 +4,7 @@ let isChanged = false;
 function getToDoList() {
     const toDoList = [];
     const items = JSON.parse(window.localStorage.getItem('myTasks'));
-    if (items.length === 0) {
+    if (items === null ||items.length === 0) {
         let toDo;
         while (toDo = getTask()) {
             toDoList.push(toDo);
